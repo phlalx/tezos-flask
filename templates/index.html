@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<title> Tezos Client </title>
+<style>
+</style>
+
+<body>
+    <h2> Welcome to our Tezos DAPP </h2>
+
+
+    <form>
+        P2p stats
+        <br>
+        <!-- <input autocomplete="off" type="text" id="checkdoc"> -->
+        <input type="button" value="Submit" onclick="tezos()">
+        <br>
+      </form>
+
+    <form>
+        Try RPC
+        <br>
+        <input autocomplete="off" type="text" id="checkrpc"
+        value="/chains/main/blocks/head/">
+        <input type="button" value="Submit" onclick="rpc()">
+        <br>
+      </form>
+
+      <h2> Tezos client answer </h2>
+      <pre>
+       <div id="result"></div>
+       </pre>
+
+</body>
+
+<script>
+    function tezos() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("result").innerHTML = this.responseText;
+        }
+      };
+    //   val = document.getElementById("checkdoc").value
+    val = ''
+      xhttp.open("GET", "/checkdoc?val=" + val);
+      xhttp.send();
+    }
+  </script>
+
+
+<script>
+    function rpc() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("result").innerHTML = this.responseText;
+        }
+      };
+      val = document.getElementById("checkrpc").value
+      xhttp.open("GET", "/checkrpc?val=" + val);
+      xhttp.send();
+    }
+  </script>
+
+</html>
