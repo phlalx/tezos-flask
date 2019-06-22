@@ -8,6 +8,7 @@ from tools import paths
 from flask import g
 import json
 from client.client import Client
+from tools import constants
 
 app = flask.Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -30,11 +31,18 @@ else:
 def tezos_client():
     # TODO use one client per session, clean-up client resources
     if 'tezos_client' not in g:
-        g.tezos_client = Client(CLIENT,
+        client = Client(CLIENT,
                                 CLIENT_ADMIN,
                                 host=HOST,
                                 rpc_port=PORT,
                                 use_tls=False)
+        if ZERONET:
+            pass # TODO import 'alice' key from faucet
+        else:
+            for name, iden in constants.IDENTITIES:
+                client.import_secret_key(name, iden['secret'])
+        g.tezos_client = client
+
     return g.tezos_client
 
 
