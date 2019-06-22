@@ -30,34 +30,36 @@ else:
 
 def tezos_client():
     # TODO use one client per session, clean-up client resources
-    if 'tezos_client' not in g:
-        client = Client(CLIENT,
-                                CLIENT_ADMIN,
-                                host=HOST,
-                                rpc_port=PORT,
-                                use_tls=False)
-        if ZERONET:
-            pass # TODO import 'alice' key from faucet
-        else:
-            for name, iden in constants.IDENTITIES:
-                client.import_secret_key(name, iden['secret'])
-        g.tezos_client = client
+    client = Client(CLIENT,
+                    CLIENT_ADMIN,
+                    host=HOST,
+                    rpc_port=PORT,
+                    use_tls=False)
 
-    return g.tezos_client
+    identities = constants.IDENTITIES
+    client.import_secret_key('bootstrap1', identities['bootstrap1']['secret'])
+    return client
+
+# TODO  don't use global variable for client
+CLIENT = tezos_client()
 
 
 @app.route('/checkdoc')
 def checkdoc():
     _val = flask.request.args.get('val', default = '', type = str)
-    client = tezos_client()
-    res = client.p2p_stat()
+    res = CLIENT.p2p_stat()
     return res
 
 @app.route('/checkrpc')
 def checkrpc():
     val = flask.request.args.get('val', default = '', type = str)
-    client = tezos_client()
-    res = client.rpc('get', val)
+    res = CLIENT.rpc('get', val)
+    return json.dumps(res, indent=4, sort_keys=True)
+
+@app.route('/checkbalance')
+def checkbalance():
+    val = flask.request.args.get('val', default = '', type = str)
+    res = CLIENT.get_balance(val)
     return json.dumps(res, indent=4, sort_keys=True)
 
 @app.route('/')

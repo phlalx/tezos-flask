@@ -25,6 +25,15 @@
         <br>
       </form>
 
+    <form>
+        Check balance
+        <br>
+        <input autocomplete="off" type="text" id="checkbalance"
+        value="bootstrap1">
+        <input type="button" value="Submit" onclick="balance()">
+        <br>
+      </form>
+
       <h2> Tezos client answer </h2>
       <pre>
        <div id="result"></div>
@@ -47,8 +56,21 @@
     }
   </script>
 
+<script> 
+    function balance() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("result").innerHTML = this.responseText;
+        }
+      };
+      val = document.getElementById("checkbalance").value
+      xhttp.open("GET", "/checkbalance?val=" + val);
+      xhttp.send();
+    }
+  </script>
 
-<script>
+<script> 
     function rpc() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
