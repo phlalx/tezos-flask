@@ -1,3 +1,5 @@
+# https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
+
 import flask
 from flask import render_template
 from flask import make_response
@@ -6,6 +8,8 @@ from flask import redirect
 from flask import url_for, session
 from tools import paths
 from flask import g
+from flask import jsonify
+from flask import abort
 import json
 from client.client import Client
 from tools import constants
@@ -13,8 +17,28 @@ from tools import constants
 app = flask.Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
+# tasks = [
+#     {
+#         'id': 1,
+#         'title': u'tezos-client',
+#         'description': u'call the tezos client',
+#         'done': False
+#     },
+# ]
 
-ZERONET = True
+# @app.route('/tezos/api/v1.0/tasks', methods=['GET'])
+# def get_tasks():
+#     return jsonify({'tasks': tasks})
+
+
+# @app.route('/tezos/api/v1.0/tasks/<int:task_id>', methods=['GET'])
+# def get_task(task_id):
+#     task = [task for task in tasks if task['id'] == task_id]
+#     if len(task) == 0:
+#         abort(404)
+#     return jsonify({'task': task[0]})
+
+ZERONET = False
 
 if ZERONET:
     CLIENT = './tezos-client.zeronet'
@@ -44,26 +68,19 @@ def tezos_client():
 CLIENT = tezos_client()
 
 
-@app.route('/checkdoc')
-def checkdoc():
-    _val = flask.request.args.get('val', default = '', type = str)
-    res = CLIENT.p2p_stat()
+@app.route('/tezosclient', methods=['POST'])
+def tezosclient():
+    params = request.json['params']
+    print(params)
+    if not params or not params[0] in {'tezos-client', 'tezos-client-admin'}:
+        return
+    admin = params[0] == 'tezos-client-admin'
+    res = CLIENT.run(params[1:], admin=admin)
+    res = jsonify({ 'client_output': res })
     return res
 
-@app.route('/checkrpc')
-def checkrpc():
-    val = flask.request.args.get('val', default = '', type = str)
-    res = CLIENT.rpc('get', val)
-    return json.dumps(res, indent=4, sort_keys=True)
-
-@app.route('/checkbalance')
-def checkbalance():
-    val = flask.request.args.get('val', default = '', type = str)
-    res = CLIENT.get_balance(val)
-    return json.dumps(res, indent=4, sort_keys=True)
-
 @app.route('/')
-def index(msg = None):
+def index(msg=None):
     return render_template('index.html', msg = msg)
 
 
