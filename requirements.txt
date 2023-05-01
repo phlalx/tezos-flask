@@ -24,4 +24,4 @@
 # pyblake2==1.1.2
 # ed25519==1.4
 # requests==2.20.1
-Flask==1.0.2
+Flask==2.3.2
